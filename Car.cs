@@ -10,14 +10,19 @@ namespace Vehicle
     {
         public int Speed { get; set; }
 
+        //ange hastigheten
+        public int SetSpeed()
+        {
+            var random = new Random();
+            Speed = random.Next(10,100);
+            return Speed;
+        }
+
+        //returnera hastigheten
         public int GetSpeed()
         {
             throw new NotImplementedException();
         }
-
-        public int SetSpeed()
-        {
-            throw new NotImplementedException();
-        }
+    
     }
 }
