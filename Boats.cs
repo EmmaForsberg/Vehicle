@@ -9,13 +9,13 @@ namespace Vehicle
     internal class Boats : IVehicle
     {
         public int Speed { get; set; }
+		public string SpeedMeassurement { get; } = "knots";
+		Random random = new Random(); // har för mig att detta genererar en bättre random dvs att den initieras med klassen och inte i en metod
 
         //ange hastigheten
-        public int SetSpeed()
+        public void SetSpeed(int newSpeed)
         {
-            var random = new Random();
             Speed = random.Next(10, 100);
-            return Speed;
         }
 
         public int GetSpeed()
