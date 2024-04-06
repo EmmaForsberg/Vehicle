@@ -1,11 +1,15 @@
-﻿using Vehicle;
+﻿using System.Diagnostics;
+using Vehicle;
 int numberinput = 0;
 bool check = false;
-List<IVehicle> vehicles = new List<IVehicle>();
+List<IVehicle> carlist = new List<IVehicle>();
+List<IVehicle> boatlist = new List<IVehicle>();
+Random random = new Random();
 
 
 PrintMenu();
-SelectedNumber(numberinput);
+//SelectedNumber(numberinput);
+
 
 void PrintMenu()
 {
@@ -18,7 +22,9 @@ void PrintMenu()
             if (numberinput >= 1 && numberinput <= 4)
             {
                 check = true;
-                SelectedNumber(numberinput);
+                var enumType = Enum.Parse(typeof(VehicleEnum), numberinput.ToString());
+
+                SelectedNumber(enumType);
             }
             else
             {
@@ -35,35 +41,31 @@ void PrintMenu()
     } while (check == false);
 }
 
-void SelectedNumber(int number)
+void SelectedNumber(object EnumType)
 {
-    switch (number)
+    switch (EnumType)
     {
-        case 1:
-
-            IVehicle car = new Car();
-            if (vehicles.Count is 0)
+        case VehicleEnum.Car:
+            if (!carlist.Any(x => x is Car))//om det inte finns några bilar går den in i denna metod
             {
-                CreateVehicle(car);
+                CreateVehicle(VehicleEnum.Car);
             }
-            else
+            else //
             {
-                Console.WriteLine("-- " + vehicles.Count + " cars in stock--");
-                PrintVehicleInStock(car);
-
+                Console.WriteLine("-- " + carlist.Count + " cars in stock--");
+                PrintVehicleInStock(VehicleEnum.Car);
             }
             break;
 
-        case 2:
-            IVehicle boat = new Boats();
-            if (vehicles.Count is 0)
+        case VehicleEnum.Boat:
+            if (!boatlist.Any(x => x is Boat))//om det inte finns några båtar går den in i denna metod
             {
-                CreateVehicle(boat);
+                CreateVehicle(VehicleEnum.Boat);
             }
-            else
+            else //
             {
-                Console.WriteLine("-- " + vehicles.Count + " boats in stock--");
-                PrintVehicleInStock(boat);
+                Console.WriteLine("-- " + boatlist.Count + " boats in stock--");
+                PrintVehicleInStock(VehicleEnum.Boat);
             }
             break;
 
@@ -72,83 +74,142 @@ void SelectedNumber(int number)
     }
 }
 
-void CreateVehicle(IVehicle vehicle)
+void CreateVehicle(object enumtype)
 {
-    Console.WriteLine("--No cars in stock--");
-    Console.WriteLine("Enter + plus to add a new car.");
-    var plusinput = Console.ReadLine();
-    AddVehicle(plusinput, vehicle);
+    Console.WriteLine($"--No {enumtype}s in stock--");
+    Console.WriteLine($"Enter + plus to add a new {enumtype}.");
+    var plusinput = Console.ReadLine(); // koll här så att input är en +
+    if (plusinput == "+")
+        AddVehicle(enumtype);
+    PrintMenu();
 }
 
-void AddVehicle(string input, IVehicle vehicle)
+IVehicle AddVehicle(object enumtype)
 {
-    if (input == "+")
+    int randomNumber = random.Next(1, 100);
+    IVehicle? vehicle = null;
+    switch (enumtype)
     {
-        vehicle.SetSpeed();
-        vehicles.Add(vehicle);
-        foreach (var item in vehicles)
-        {
-            if (item.GetType() == typeof(Car))
-            {
-                for (int i = 0; i < vehicles.Count; i++)
-                {
-                    Console.WriteLine("Car {0} added {1} mph, press any key to return to main menu.", i, vehicles[i].Speed);
-                };
+        case VehicleEnum.Car:
+            vehicle = new Car(randomNumber);
+            carlist.Add(vehicle);
+            break;
 
-                PrintMenu();
-            }
-        };
+
+        case VehicleEnum.Boat:
+            vehicle = new Boat(randomNumber);
+            boatlist.Add(vehicle);
+            break;
+
+
+        default:
+            break;
+    }
+
+    PrintLatestAddedVehicle(vehicle);
+    return vehicle;
+}
+
+void PrintLatestAddedVehicle(IVehicle vehicle)
+{
+    if (vehicle is Car && carlist.Any())
+    {
+        var lastCar = carlist.Last();
+        Console.WriteLine("Car {0} added {1} mph, press any key to return to the main menu.", carlist.Count - 1, lastCar.speed);
+        PrintMenu();
+    }
+    else if (vehicle is Boat && boatlist.Any())
+    {
+        var lastBoat = boatlist.Last();
+        Console.WriteLine("Boat {0} added {1} knots, press any key to return to the main menu.", boatlist.Count - 1, lastBoat.speed);
+        PrintMenu();
     }
 }
 
-void ChangeVehicle(IVehicle vehicle)
+void ChangeVehicle(object vehicle)
 {
-    Console.WriteLine("Please select car to change (0-9) or enter + to add a new car");
+    Console.WriteLine($"Please select {vehicle} to change (0-9) or enter + to add a new {vehicle}");
     var choice = Console.ReadLine();
 
     if (choice == "+")
     {
-        AddVehicle(choice, vehicle);
+        AddVehicle(vehicle);
     }
     else
     {
         int numberchoice = Convert.ToInt32(choice);
 
-        Console.WriteLine("--Car {0}--", numberchoice);
-        Console.WriteLine("Speed: {0} mph", vehicles[numberchoice].Speed);
+        Console.WriteLine($"--{vehicle} {0}--", numberchoice);
+        Console.WriteLine("Speed: {0} mph", carlist[numberchoice].speed);// skicka med en lista till denna metod?
         Console.WriteLine("Enter new speed(0-100) or - to remove boat");
         var input = Console.ReadLine();
-        if (input == "-") 
+        if (input == "-")
         {
-            RemoveVehicle(vehicles[numberchoice]);
+            RemoveVehicle(carlist[numberchoice]);
         }
-        else
+        else // new speed
         {
-            var newinput =Convert.ToInt32(input);
-            vehicles[numberchoice].Speed = newinput;
+            var newinput = Convert.ToInt32(input);
+            IVehicle vehiclex = new Car(newinput);
+            carlist[numberchoice] = vehiclex;
+            PrintMenu();
         }
     }
 }
 
+
 void RemoveVehicle(IVehicle vehicle)
 {
-    vehicles.Remove(vehicle);
+    carlist.Remove(vehicle);
     Console.WriteLine("Car removed, press any key to return to main menu");
     PrintMenu();
 }
 
-void PrintVehicleInStock(IVehicle vehicle)
+
+void PrintVehicleInStock(object enumobject)
 {
-    foreach (var item in vehicles)
+    if (enumobject is VehicleEnum vehicleType)
     {
-        if (item.GetType() == typeof(Car))
+        switch (vehicleType)
         {
-            for (int i = 0; i < vehicles.Count; i++)
-            {
-                Console.WriteLine("Car {0} - {1} mph", i, vehicles[i].Speed);
-            };
+            case VehicleEnum.Car:
+                if (carlist.Any())
+                {
+                    for (int i = 0; i < carlist.Count; i++)
+                    {
+                        Console.WriteLine("Car {0} - {1} mph", i, carlist[i].speed);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No cars in stock.");
+                }
+                break;
+
+            case VehicleEnum.Boat:
+                if (boatlist.Any())
+                {
+                    for (int i = 0; i < boatlist.Count; i++)
+                    {
+                        Console.WriteLine("Boat {0} - {1} knots", i, boatlist[i].speed);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No boats in stock.");
+                }
+                break;
+
+            default:
+                Console.WriteLine("Invalid vehicle type.");
+                break;
         }
-        ChangeVehicle(vehicle);
-    };
+    }
+    else
+    {
+        Console.WriteLine("Invalid parameter. Please provide a valid VehicleEnum.");
+    }
+    ChangeVehicle(enumobject);
 }
+
 Console.Read();

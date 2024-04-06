@@ -6,29 +6,26 @@ using System.Threading.Tasks;
 
 namespace Vehicle
 {
-    internal class Car : IVehicle
+    internal class Boat : IVehicle
     {
         public int speed { get; private set; }
+        public string SpeedMeasurement { get; private set; }
 
-        public string SpeedMeasurement {  get; private set; }
-
-        //konstruktor här
-        public Car(int randomSpeed)
+        public Boat(int randomSpeed)
         {
             speed = randomSpeed;
-            SpeedMeasurement = "mph";
+            SpeedMeasurement = "knots";
         }
 
-
+        //ange hastigheten
         public void SetSpeed(int Speed)
         {
-            speed = Speed;
+            speed = Speed;        
         }
-
 
         public int GetSpeed()
         {
-            return speed;
+            throw new NotImplementedException();
         }
     }
 }

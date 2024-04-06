@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vehicle
+﻿namespace Vehicle
 {
+    internal enum VehicleEnum
+    {
+        Car = 1,
+        Boat = 2,
+        Motorcycle = 3
+    }
     internal interface IVehicle
     {
-        int Speed { get; set; }
+        int speed { get;}
+        string SpeedMeasurement { get;}
 
-        int SetSpeed();
+        void SetSpeed(int speed);
         int GetSpeed();
 
     }
