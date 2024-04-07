@@ -126,7 +126,7 @@ void PrintLatestAddedVehicle(IVehicle vehicle)
     }
 }
 
-void ChangeVehicle(object vehicle)
+void ChangeVehicle(List<IVehicle> vehicleList, object vehicle)
 {
     Console.WriteLine($"Please select {vehicle} to change (0-9) or enter + to add a new {vehicle}");
     var choice = Console.ReadLine();
@@ -139,28 +139,30 @@ void ChangeVehicle(object vehicle)
     {
         int numberchoice = Convert.ToInt32(choice);
 
-        Console.WriteLine($"--{vehicle} {0}--", numberchoice);
-        Console.WriteLine("Speed: {0} mph", carlist[numberchoice].speed);// skicka med en lista till denna metod?
+        Console.WriteLine($"--{vehicle} {numberchoice}--");
+        Console.WriteLine("Speed: {0} mph", vehicleList[numberchoice].speed); // ändra hastighet
         Console.WriteLine("Enter new speed(0-100) or - to remove boat");
         var input = Console.ReadLine();
         if (input == "-")
         {
-            RemoveVehicle(carlist[numberchoice]);
+            RemoveVehicle(vehicleList, vehicleList[numberchoice]);
         }
-        else // new speed
+        else 
         {
             var newinput = Convert.ToInt32(input);
+            // här ska det skapas en ny hastighet för valt fordon
             IVehicle vehiclex = new Car(newinput);
-            carlist[numberchoice] = vehiclex;
+            vehicleList[numberchoice] = vehiclex;
             PrintMenu();
         }
     }
 }
 
 
-void RemoveVehicle(IVehicle vehicle)
+void RemoveVehicle(List<IVehicle> vehicleList, IVehicle vehicle)
 {
-    carlist.Remove(vehicle);
+    vehicleList.Remove(vehicle);
+    //carlist.Remove(vehicle);
     Console.WriteLine("Car removed, press any key to return to main menu");
     PrintMenu();
 }
@@ -178,7 +180,9 @@ void PrintVehicleInStock(object enumobject)
                     for (int i = 0; i < carlist.Count; i++)
                     {
                         Console.WriteLine("Car {0} - {1} mph", i, carlist[i].speed);
+                       
                     }
+                    ChangeVehicle(carlist, enumobject);
                 }
                 else
                 {
@@ -193,6 +197,7 @@ void PrintVehicleInStock(object enumobject)
                     {
                         Console.WriteLine("Boat {0} - {1} knots", i, boatlist[i].speed);
                     }
+                    ChangeVehicle(boatlist, enumobject);
                 }
                 else
                 {
@@ -209,7 +214,6 @@ void PrintVehicleInStock(object enumobject)
     {
         Console.WriteLine("Invalid parameter. Please provide a valid VehicleEnum.");
     }
-    ChangeVehicle(enumobject);
 }
 
 Console.Read();
